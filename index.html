@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quản lý phiếu nhập</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">Cửa hàng</div>
+      <div class="store-select">Cửa Hàng Thời Trang Zakute ▾</div>
+      <div class="hello">Xin chào, <strong>Minh Quân</strong> ▾</div>
+    </header>
+
+    <main class="container">
+      <section class="toolbar">
+        <button class="btn btn-primary">+ Tạo phiếu nhập</button>
+        <button class="btn btn-success">⬇ Xuất Excel</button>
+      </section>
+
+      <section class="filters">
+        <select>
+          <option>Phiếu nhập</option>
+        </select>
+
+        <button class="btn btn-search">🔎 Tìm kiếm</button>
+
+        <label>Từ:</label>
+        <input type="date" />
+        <span>-</span>
+        <input type="date" />
+
+        <div class="quick-range">
+          <button>Tuần</button>
+          <button>Tháng</button>
+          <button>Quí</button>
+          <button>▾</button>
+        </div>
+      </section>
+
+      <section class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Tình trạng</th>
+              <th>Ngày nhập</th>
+              <th>
+                <select>
+                  <option>Người nhập</option>
+                </select>
+              </th>
+              <th>SL</th>
+              <th>Tổng tiền</th>
+              <th>Nợ</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="receiptRows"></tbody>
+        </table>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
