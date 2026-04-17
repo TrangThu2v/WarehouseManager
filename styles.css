@@ -1,0 +1,164 @@
+:root {
+  --blue: #1f8bc0;
+  --blue-dark: #1472a1;
+  --green: #8bc173;
+  --gray-border: #d9d9d9;
+  --text: #555;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  color: var(--text);
+  background: #f5f5f5;
+}
+
+.topbar {
+  background: var(--blue);
+  color: #fff;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  padding: 0;
+  min-height: 54px;
+}
+
+.brand {
+  text-align: center;
+  padding: 16px;
+  font-size: 20px;
+}
+
+.store-select,
+.hello {
+  background: rgba(255, 255, 255, 0.12);
+  padding: 16px 22px;
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.container {
+  max-width: 1180px;
+  margin: 14px auto;
+  background: #fff;
+  border: 1px solid var(--gray-border);
+}
+
+.toolbar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px;
+  border-bottom: 1px solid var(--gray-border);
+}
+
+.btn {
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  font-weight: 600;
+  padding: 11px 16px;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: #2a8fd7;
+}
+
+.btn-success {
+  background: #94c973;
+}
+
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  border-bottom: 1px solid var(--gray-border);
+}
+
+.filters select,
+.filters input,
+thead select {
+  border: 1px solid #cfcfcf;
+  border-radius: 3px;
+  padding: 8px;
+  font-size: 15px;
+  color: #666;
+  background: #fff;
+}
+
+.btn-search {
+  background: #3f97d3;
+}
+
+.quick-range button {
+  border: 1px solid #8bb6d8;
+  background: #fff;
+  padding: 8px 13px;
+  color: #3d8ec5;
+  border-radius: 2px;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: center;
+}
+
+th {
+  background: #efefef;
+  font-size: 24px;
+}
+
+td {
+  font-size: 28px;
+}
+
+.status {
+  display: inline-block;
+  background: #80bc68;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 2px;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.money {
+  font-weight: 700;
+  color: #444;
+}
+
+.highlight {
+  background: #f5efbf;
+}
+
+.delete {
+  color: #e67b7b;
+  font-size: 24px;
+}
+
+@media (max-width: 900px) {
+  th {
+    font-size: 14px;
+  }
+
+  td,
+  .status {
+    font-size: 13px;
+  }
+}
