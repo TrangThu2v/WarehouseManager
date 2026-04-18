@@ -275,6 +275,7 @@ class WarehouseApp:
 
 def main() -> None:
     database.init_db()
+    database.seed_sample_products(25)
     root = tk.Tk()
     app = WarehouseApp(root)
     _ = app
