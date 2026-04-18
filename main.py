@@ -275,9 +275,7 @@ class WarehouseApp:
 
 def main() -> None:
     database.init_db()
-    seed_sample_products = getattr(database, "seed_sample_products", None)
-    if callable(seed_sample_products):
-        seed_sample_products(25)
+    database.seed_sample_products(25)
     root = tk.Tk()
     app = WarehouseApp(root)
     _ = app
