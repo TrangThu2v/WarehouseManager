@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox, ttk
+from tkinter import messagebox, simpledialog, ttk
 import sqlite3
 
 import database
@@ -14,6 +14,7 @@ class WarehouseApp:
         self.selected_id: int | None = None
 
         self._build_form()
+        self._build_tools()
         self._build_table()
         self.load_products()
 
@@ -45,6 +46,41 @@ class WarehouseApp:
         ttk.Button(btn_frame, text="Xóa", command=self.delete_product).pack(side="left", padx=4)
         ttk.Button(btn_frame, text="Làm mới", command=self.clear_form).pack(side="left", padx=4)
 
+    def _build_tools(self) -> None:
+        frame = ttk.LabelFrame(self.root, text="Tìm kiếm / Sắp xếp / Nhập - Xuất hàng")
+        frame.pack(fill="x", padx=10, pady=(0, 10))
+
+        ttk.Label(frame, text="Từ khóa").grid(row=0, column=0, padx=8, pady=8, sticky="w")
+        self.search_var = tk.StringVar()
+        ttk.Entry(frame, textvariable=self.search_var, width=22).grid(row=0, column=1, padx=8, pady=8)
+        ttk.Button(frame, text="Tìm kiếm", command=self.search_products).grid(row=0, column=2, padx=4, pady=8)
+        ttk.Button(frame, text="Xóa lọc", command=self.reset_filters).grid(row=0, column=3, padx=4, pady=8)
+
+        ttk.Label(frame, text="Sắp xếp theo").grid(row=0, column=4, padx=(20, 8), pady=8, sticky="w")
+        self.sort_field_var = tk.StringVar(value="id")
+        sort_field_combo = ttk.Combobox(
+            frame,
+            textvariable=self.sort_field_var,
+            values=["id", "name", "sku", "quantity", "price"],
+            width=12,
+            state="readonly",
+        )
+        sort_field_combo.grid(row=0, column=5, padx=8, pady=8)
+
+        self.sort_order_var = tk.StringVar(value="DESC")
+        sort_order_combo = ttk.Combobox(
+            frame,
+            textvariable=self.sort_order_var,
+            values=["DESC", "ASC"],
+            width=7,
+            state="readonly",
+        )
+        sort_order_combo.grid(row=0, column=6, padx=8, pady=8)
+        ttk.Button(frame, text="Sắp xếp", command=self.sort_products).grid(row=0, column=7, padx=4, pady=8)
+
+        ttk.Button(frame, text="Nhập hàng", command=self.import_stock).grid(row=1, column=1, padx=8, pady=(0, 8))
+        ttk.Button(frame, text="Xuất hàng", command=self.export_stock).grid(row=1, column=2, padx=8, pady=(0, 8))
+
     def _build_table(self) -> None:
         table_frame = ttk.Frame(self.root)
         table_frame.pack(fill="both", expand=True, padx=10, pady=(0, 10))
@@ -71,16 +107,19 @@ class WarehouseApp:
 
         self.tree.bind("<<TreeviewSelect>>", self.on_select_row)
 
-    def load_products(self) -> None:
+    def _render_products(self, products: list[sqlite3.Row]) -> None:
         for row_id in self.tree.get_children():
             self.tree.delete(row_id)
 
-        for item in database.get_all_products():
+        for item in products:
             self.tree.insert(
                 "",
                 "end",
                 values=(item["id"], item["name"], item["sku"], item["quantity"], f"{item['price']:.2f}"),
             )
+
+    def load_products(self) -> None:
+        self._render_products(database.get_all_products())
 
     def _parse_inputs(self) -> tuple[str, str, int, float] | None:
         name = self.name_var.get().strip()
@@ -146,6 +185,69 @@ class WarehouseApp:
         self.clear_form()
         messagebox.showinfo("Thành công", "Đã xóa sản phẩm.")
 
+    def search_products(self) -> None:
+        keyword = self.search_var.get()
+        products = database.search_products(keyword)
+        self._render_products(products)
+        self.selected_id = None
+        self.tree.selection_remove(self.tree.selection())
+
+    def sort_products(self) -> None:
+        sort_by = self.sort_field_var.get()
+        descending = self.sort_order_var.get() == "DESC"
+        products = database.sort_products(sort_by=sort_by, descending=descending)
+        self._render_products(products)
+        self.selected_id = None
+        self.tree.selection_remove(self.tree.selection())
+
+    def _ask_movement_quantity(self, title: str) -> int | None:
+        qty = simpledialog.askinteger(title, "Nhập số lượng:", parent=self.root, minvalue=1)
+        return qty
+
+    def import_stock(self) -> None:
+        if self.selected_id is None:
+            messagebox.showwarning("Chưa chọn", "Vui lòng chọn sản phẩm để nhập hàng.")
+            return
+
+        qty = self._ask_movement_quantity("Nhập hàng")
+        if qty is None:
+            return
+
+        note = simpledialog.askstring("Nhập hàng", "Ghi chú (không bắt buộc):", parent=self.root)
+        try:
+            database.import_stock(self.selected_id, qty, note)
+        except ValueError as error:
+            messagebox.showerror("Lỗi nhập hàng", str(error))
+            return
+
+        self.load_products()
+        messagebox.showinfo("Thành công", f"Đã nhập {qty} sản phẩm vào kho.")
+
+    def export_stock(self) -> None:
+        if self.selected_id is None:
+            messagebox.showwarning("Chưa chọn", "Vui lòng chọn sản phẩm để xuất hàng.")
+            return
+
+        qty = self._ask_movement_quantity("Xuất hàng")
+        if qty is None:
+            return
+
+        note = simpledialog.askstring("Xuất hàng", "Ghi chú (không bắt buộc):", parent=self.root)
+        try:
+            database.export_stock(self.selected_id, qty, note)
+        except ValueError as error:
+            messagebox.showerror("Lỗi xuất hàng", str(error))
+            return
+
+        self.load_products()
+        messagebox.showinfo("Thành công", f"Đã xuất {qty} sản phẩm khỏi kho.")
+
+    def reset_filters(self) -> None:
+        self.search_var.set("")
+        self.sort_field_var.set("id")
+        self.sort_order_var.set("DESC")
+        self.load_products()
+
     def on_select_row(self, _event: tk.Event) -> None:
         selected = self.tree.selection()
         if not selected:
@@ -164,11 +266,18 @@ class WarehouseApp:
         self.sku_var.set("")
         self.qty_var.set("0")
         self.price_var.set("0")
+        self.search_var.set("")
+        self.sort_field_var.set("id")
+        self.sort_order_var.set("DESC")
         self.tree.selection_remove(self.tree.selection())
+        self.load_products()
 
 
 def main() -> None:
     database.init_db()
+    seed_sample_products = getattr(database, "seed_sample_products", None)
+    if callable(seed_sample_products):
+        seed_sample_products(25)
     root = tk.Tk()
     app = WarehouseApp(root)
     _ = app
